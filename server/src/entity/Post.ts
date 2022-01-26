@@ -13,8 +13,11 @@ export class Post {
   @Column({ unique: false, nullable: true })
   photo: string;
 
-  @Column('timestamp with time zone', { nullable: false, default: () => 'CURRENT_TIMESTAMP' })  
-  created: Date;
+  @Column({ nullable: false })  
+  created: string;
+
+  @Column({ unique: false, default: false })
+  private: boolean;
 
   @ManyToOne(() => User, user => user.posts)
   user: User;

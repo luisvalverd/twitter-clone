@@ -10,6 +10,8 @@ import { PostRouter } from './routers/PostRouter';
 import * as http from 'http';
 import * as SocketIO from 'socket.io'
 import { headersExpose } from './middlewares/headers';
+import { GetRouter } from './routers/GetRouter';
+import path from 'path';
 
 dotenv.config();
 
@@ -18,6 +20,7 @@ class Server {
   public app: express.Express;
   public authRouter: AuthRouter = new AuthRouter();
   public postRouter: PostRouter = new PostRouter();
+  public getRouter: GetRouter = new GetRouter();
   public server: http.Server;
   public io: SocketIO.Server = new SocketIO.Server();
 
@@ -37,11 +40,15 @@ class Server {
     this.app.use(express.json());
     this.app.use(urlencoded({ extended: true }));
     this.app.use(headersExpose);
+    this.app.use("/uploads/avatars", express.static(path.resolve("uploads/avatars")));
+    this.app.use("/uploads/photos", express.static(path.resolve("uploads/photos")));
+    this.app.use("/uploads/backgrounds", express.static(path.resolve("uploads/backgrounds")));
   }
 
   routers(): void {
     this.authRouter.router(this.app);
     this.postRouter.router(this.app);    
+    this.getRouter.router(this.app);
   }
 
   sockets(): void {

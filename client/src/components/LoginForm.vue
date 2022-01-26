@@ -1,10 +1,39 @@
 <template>
-  <div class="login-form">
-    <label>Nickname</label>
-    <input v-model="dataUser.nickname" type="text" />
-    <label>Password</label>
-    <input v-model="dataUser.password" type="password" />
-    <button class="btn-primary" @click="sendData">Log In</button>
+  <div class="container grid grid-rows-3 h-auto">
+    <div class="h-24 flex flex-wrap">
+      <label class="font-sans text-xl text-center">Nickname</label>
+      <input
+        class="font-sans w-full border-2 rounded-lg text-lg"
+        v-model="dataUser.nickname"
+        type="text"
+        v-on:keyup.enter="sendData"
+      />
+    </div>
+    <div class="h-24 flex flex-wrap">
+      <label class="font-sans text-xl text-center">Password</label>
+      <input
+        class="font-sans w-full border-2 rounded-lg text-lg"
+        v-model="dataUser.password"
+        type="password"
+        v-on:keyup.enter="sendData"
+      />
+    </div>
+    <div class="flex items-center">
+      <button
+        class="w-full h-10 bg-sky-500 rounded-lg text-lg transition hover:bg-sky-600"
+        @click="sendData"
+      >
+        Sing In
+      </button>
+    </div>
+    <div class="flex justify-center">
+      <a
+        class="underline decoration-solid text-blue-700 transition hover:text-blue-800"
+        href="/#/register"
+      >
+        Register
+      </a>
+    </div>
   </div>
 </template>
 

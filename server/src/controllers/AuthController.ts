@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import { getRepository } from 'typeorm';
 import { User } from '../entity/User';
-import { user } from '../interfaces/interfaces';
+import { requestCustom, user } from '../interfaces/interfaces';
 import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcrypt';
 import * as dotenv from 'dotenv';
+import { v4 as uuid } from "uuid";
 
 dotenv.config();
 
@@ -23,12 +24,7 @@ export class AuthController {
 
   
   async generateID(): Promise<string> {
-    let result: string = '';
-    let characters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-    for (let i = 0; i < 25; i++) {
-      result += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
+    let result: string = uuid(); 
 
     let verifyUser = await this.isValidId(result);
 

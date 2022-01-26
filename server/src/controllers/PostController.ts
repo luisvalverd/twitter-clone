@@ -3,6 +3,7 @@ import { getRepository } from "typeorm";
 import { Post } from "../entity/Post";
 import { User } from "../entity/User";
 import { post, requestCustom } from "../interfaces/interfaces";
+import { v4 as uuid } from "uuid";
 
 export class PostController {
 
@@ -10,7 +11,7 @@ export class PostController {
   userRepository = getRepository(User);
 
   async isValidId(id: string): Promise<boolean> {
-    let post = await this.postRepository.find({ id_post: id });
+    let post = await this.postRepository.findOne({ id_post: id });
     if (post) {
       return true;
     }
@@ -20,16 +21,11 @@ export class PostController {
 
   // in this function return a id user 
   async generateIdPost(): Promise<string> {
-    let result: string = '';
-    let characters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result: string = uuid(); 
 
-    for (let i = 0; i < 50; i++) {
-      result += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
+    let verifyPost = await this.isValidId(result);
 
-    let verifyUser = await this.isValidId(result);
-
-    if (verifyUser === true) {
+    if (verifyPost === true) {
       this.generateIdPost();
     }
     return result;
@@ -38,10 +34,13 @@ export class PostController {
   async createPost(req: requestCustom, res: Response): Promise<Response> {
     let data: post = req.body;
     let newPost = new Post();
+    let date = new Date();
 
     newPost.id_post = await new PostController().generateIdPost(); 
     newPost.description = data.description;
     newPost.photo = data.photo || '';
+    newPost.private = data.private || false;
+    newPost.created = <string>date.toLocaleDateString();
 
     let user = await new PostController().userRepository.findOne({id_user: req.idUser})
     newPost.user = <User>user;
@@ -54,6 +53,15 @@ export class PostController {
     }
     
     return res.json({ message: "post save successfuly" }); 
+  }
+  async updateAvatar(req: requestCustom, res: Response): Promise<Response> {
+    let img = req.file?.path;
+
+    if (!img) {
+      res.status(400).json({ message: "donnot any image" });
+    }
+    
+    return res.json(img);
   }
 }
 

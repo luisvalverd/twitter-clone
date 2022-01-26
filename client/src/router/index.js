@@ -3,6 +3,7 @@ import store from "../store";
 import Home from "../views/Home.vue";
 import Login from "../views/Login.vue";
 import Register from "../views/Register.vue";
+import Profile from "../views/Profile.vue";
 
 const routes = [
   {
@@ -21,6 +22,11 @@ const routes = [
     component: Register,
   },
   {
+    path: "/profile/:nickname",
+    name: "Profile",
+    component: Profile,
+  },
+  {
     path: "/about",
     name: "About",
     // route level code-splitting
@@ -37,18 +43,30 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  store.dispatch("fetchAcessToken");
-  if (to.fullPath === "/about") {
+  store.dispatch("fetchAccessToken");
+  let nickname = "/profile/" + to.params.nickname;
+  if (
+    to.fullPath === "/about" ||
+    to.fullPath === "/" ||
+    to.fullPath === nickname
+  ) {
     if (!store.state.authUser.token) {
       next("/login");
     }
   }
-  if (to.fullPath === "/login") {
+  if (to.fullPath === "/login" || to.fullPath === "/register") {
     if (store.state.authUser.token) {
-      next("/about");
+      next("/");
     }
   }
   next();
+});
+
+router.afterEach((to) => {
+  let nickname = "/profile/" + to.params.nickname;
+  if (to.fullPath === nickname) {
+    store.dispatch("getMyPosts");
+  }
 });
 
 export default router;

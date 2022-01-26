@@ -1,18 +1,38 @@
 <template>
-  <div class="register-form">
-    <div class="nickname-input">
-      <label>Nickname</label>
-      <input type="text" />
+  <div class="container grid grid-rows-4 h-auto">
+    <div class="h-24 flex flex-wrap">
+      <label class="font-sans text-xl text-center">Nickname</label>
+      <input class="font-sans w-full border-2 rounded-lg text-lg" type="text" />
     </div>
-    <div class="password-input">
-      <label>Password</label>
-      <input type="password" />
+    <div class="h-24 flex flex-wrap">
+      <label class="font-sans text-xl text-center">Password</label>
+      <input
+        class="font-sans w-full border-2 rounded-lg text-lg"
+        type="password"
+      />
     </div>
-    <div class="confirm-password--input">
-      <label>Confirm Password</label>
-      <input type="password" />
+    <div class="h-24 flex flex-wrap">
+      <label class="font-sans text-xl text-center">Confirm Password</label>
+      <input
+        class="font-sans w-full border-2 rounded-lg text-lg"
+        type="password"
+      />
     </div>
-    <button class="btn-primary">Sign Up</button>
+    <div class="flex items-center">
+      <button
+        class="w-full h-10 bg-sky-500 rounded-lg text-ls transition hover:bg-sky-600"
+      >
+        Sign Up
+      </button>
+    </div>
+    <div class="flex justify-center">
+      <a
+        class="underline decoration-solid text-blue-700 transition hover:text-blue-800"
+        href="/#/login"
+      >
+        Login
+      </a>
+    </div>
   </div>
 </template>
 

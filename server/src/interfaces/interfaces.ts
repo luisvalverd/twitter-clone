@@ -14,7 +14,8 @@ export interface post {
   id_post: string,
   description: string,
   photo?: string,
-  user: User;
+  user: User,
+  private?: boolean,
 }
 
 export interface Payload {
@@ -25,4 +26,10 @@ export interface Payload {
 
 export interface requestCustom extends Request {
   idUser?: string;
+}
+
+export interface Follow {
+  id_follower: string;
+  user?: User;
+  FollowUser?: User;
 }
