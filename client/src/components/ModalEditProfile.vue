@@ -77,21 +77,36 @@
                       <div>
                         <label class="text-sm">Description</label>
                         <textarea
-                          v-model="newData.description"
+                          v-model="description"
                           class="form-textarea w-full h-24 border-2 rounded-xl p-1 my-2"
                         ></textarea>
                       </div>
                       <div>
                         <label class="text-sm">Location</label>
                         <input
-                          v-model="newData.location"
+                          v-model="location"
                           type="text"
                           class="form-input w-full h-10 border-2 rounded-lg px-2"
                         />
                       </div>
                       <div class="mt-2">
                         <label class="text-sm">Update Avatar</label>
-                        <input type="file" class="w-full h-10 my-2" />
+                        <input
+                          type="file"
+                          id="file"
+                          ref="file"
+                          @change="handleFileUpload()"
+                          class="w-full h-10 my-2"
+                        />
+                      </div>
+                      <div>
+                        <label class="text-sm">Update Banner</label>
+                        <input
+                          type="file"
+                          id="file_banner"
+                          ref="file_banner"
+                          class="w-full h-10 my-2"
+                        />
                       </div>
                     </div>
                   </div>
@@ -108,7 +123,7 @@
                   Done
                 </button>
                 <button
-                  type="button"
+                  type="submit"
                   class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                   @click="closeModal"
                   ref="cancelButtonRef"
@@ -148,7 +163,7 @@ export default {
       description: "",
       location: "",
       avatar: null,
-    }
+    };
   },
   props: {
     open: {
@@ -162,7 +177,16 @@ export default {
       this.$emit("close", false);
     },
     update() {
-      this.updateUser({}) 
+      let formData = new FormData();
+      formData.append("avatar", this.avatar);
+      formData.append("description", this.description);
+      formData.append("location", this.location);
+
+      this.updateUser(formData);
+      this.$router.go();
+    },
+    handleFileUpload() {
+      this.avatar = this.$refs.file.files[0];
     },
   },
 };

@@ -1,6 +1,6 @@
 <template>
   <div class="container mx-auto h-full flex">
-    <header class="w-1/4 border-r-2">
+    <header class="w-1/4">
       <NavBar />
     </header>
     <!-- post user -->
@@ -14,10 +14,13 @@
           :likesCount="data.likes"
           :created="data.created"
           :img="data.avatar"
+          :photoPost="''"
         />
       </div>
     </div>
-    <div class="w-1/4 border-l-2"></div>
+    <div class="w-1/4">
+      <SearchUser />
+    </div>
   </div>
 </template>
 
@@ -25,6 +28,7 @@
 import myJson from "../../MOCK_DATA.json";
 import CardPostUser from "../components/CardPostUsers.vue";
 import NavBar from "../components/NavBar.vue";
+import SearchUser from "../components/SearchUser.vue";
 
 export default {
   name: "Home",
@@ -36,6 +40,9 @@ export default {
   components: {
     CardPostUser,
     NavBar,
+    SearchUser,
   },
+  methods: {},
+  coputed: {},
 };
 </script>

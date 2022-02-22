@@ -2,13 +2,14 @@ import { Response, Request } from "express";
 import { getRepository } from "typeorm";
 import { Post } from "../entity/Post";
 import { User } from "../entity/User";
-import { post, requestCustom } from "../interfaces/interfaces";
+import { post, requestCustom, likes } from "../interfaces/interfaces";
 import { v4 as uuid } from "uuid";
+import { Likes } from "../entity/Likes";
 
 export class PostController {
-
   postRepository = getRepository(Post);
   userRepository = getRepository(User);
+  likeRepository = getRepository(Likes);
 
   async isValidId(id: string): Promise<boolean> {
     let post = await this.postRepository.findOne({ id_post: id });
@@ -19,9 +20,9 @@ export class PostController {
     return false;
   }
 
-  // in this function return a id user 
+  // in this function return a id user
   async generateIdPost(): Promise<string> {
-    let result: string = uuid(); 
+    let result: string = uuid();
 
     let verifyPost = await this.isValidId(result);
 
@@ -31,39 +32,318 @@ export class PostController {
     return result;
   }
 
+  async getImgUser(id: string): Promise<string> {
+    let user = await this.userRepository.findOne({ id_user: id });
+
+    if (!user) {
+      return "";
+    }
+
+    let pathAvatar = user?.avatar;
+    return pathAvatar;
+  }
+
   async createPost(req: requestCustom, res: Response): Promise<Response> {
     let data: post = req.body;
     let newPost = new Post();
     let date = new Date();
+    let filePath = req.file?.path;
 
-    newPost.id_post = await new PostController().generateIdPost(); 
+    if (filePath) {
+      data.photo = filePath;
+    }
+
+    if (data.description === "") {
+      return res.status(400).json({ message: "description is enpty" });
+    }
+
+    newPost.id_post = await new PostController().generateIdPost();
     newPost.description = data.description;
-    newPost.photo = data.photo || '';
+    newPost.photo = data.photo || "";
     newPost.private = data.private || false;
     newPost.created = <string>date.toLocaleDateString();
 
-    let user = await new PostController().userRepository.findOne({id_user: req.idUser})
+    let user = await new PostController().userRepository.findOne({
+      id_user: req.idUser,
+    });
     newPost.user = <User>user;
 
     try {
-      new PostController().postRepository.save(newPost); 
+      new PostController().postRepository.save(newPost);
     } catch (e) {
       console.log(e);
-      return res.json({message: "post error save"})
+      return res.json({ message: "post error save" });
     }
-    
-    return res.json({ message: "post save successfuly" }); 
+
+    return res.json({ message: "post save successfuly" });
   }
+
   async updateAvatar(req: requestCustom, res: Response): Promise<Response> {
     let img = req.file?.path;
 
     if (!img) {
-      res.status(400).json({ message: "donnot any image" });
+      return res.status(400).json({ message: "donnot any image" });
     }
-    
-    return res.json(img);
+
+    try {
+      let user = await new PostController().userRepository.update(
+        { id_user: req.idUser },
+        { avatar: img }
+      );
+    } catch (err) {
+      return res.status(400).json({ message: "Error update image avatar" });
+    }
+
+    return res.json({ message: "update image successfuly" });
+  }
+
+  async updateDataUser(req: requestCustom, res: Response): Promise<Response> {
+    let img = req.file?.path;
+    let { description, location } = req.body;
+
+    if (!img) {
+      img = await new PostController().getImgUser(<string>req.idUser);
+    }
+    let user;
+
+    try {
+      user = await new PostController().userRepository.update(
+        { id_user: req.idUser },
+        { avatar: img, description, location }
+      );
+    } catch (err) {
+      return res.status(400).json({
+        message: "Error to update data",
+      });
+    }
+
+    return res.json(user);
+  }
+
+  async findUserByUsername(
+    req: requestCustom,
+    res: Response
+  ): Promise<Response> {
+    let { username } = req.body;
+    let user;
+
+    if (!username || username === "") {
+      return res.json([]);
+    }
+
+    try {
+      user = await new PostController().userRepository
+        .createQueryBuilder("user")
+        .where("user.nickname like :username", { username: `%${username}%` })
+        .limit(10)
+        .getMany();
+
+      return res.json(user);
+    } catch (error) {
+      return res.status(400).json("error in find user");
+    }
+  }
+
+  // TODO: revisar si se usa este metodo
+  binarySearch(arr: Array<any>, item: string) {
+    let l = 0,
+      r = arr.length - 1;
+
+    while (l <= r) {
+      let m = l + Math.floor((r - l) / 2);
+      let res = item.localeCompare(arr[m]);
+
+      if (res == 0) return m;
+
+      if (res > 0) l = m + 1;
+      else r = m - 1;
+    }
+
+    return -1;
+  }
+
+  /**
+   * find a profile of user expesific
+   * * use a binary search to de find publications what the user is liked
+   * * get my likes when I search a user o my user
+   * TODO: create a method validate if in public I like
+   * TODO: compare two arrays without my complexity beaing greater thah n squared
+   * @param req
+   * @param res
+   * @returns
+   */
+  async findProfileUser(req: requestCustom, res: Response): Promise<Response> {
+    let { username } = req.body;
+    let user;
+    let likes;
+    let post;
+
+    if (!username || username === "") {
+      return res.json({ message: "username is empty" });
+    }
+
+    try {
+      user = await new PostController().userRepository
+        .createQueryBuilder("user")
+        //.leftJoinAndSelect("user.posts", "posts")
+        //.leftJoinAndSelect("user.likes", "likes")
+        .where("user.nickname = :username", { username })
+        .getOne();
+
+      post = await new PostController().postRepository.find({
+        relations: ["user", "likes_post"],
+        where: {
+          user: {
+            id_user: <string>req.idUser,
+          },
+        },
+      });
+
+      likes = await new PostController().likeRepository.find({
+        relations: ["user_like", "post"],
+        where: {
+          user_like: {
+            id_user: <string>req.idUser,
+          },
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(400).json("Error in find user");
+    }
+
+    return res.json({ user, posts: post });
+  }
+
+  async isValidIdLike(id: string): Promise<boolean> {
+    let likeId = await new PostController().likeRepository.findOne({
+      id_like: id,
+    });
+
+    if (likeId) {
+      return true;
+    }
+
+    return false;
+  }
+
+  async generateIdLike(): Promise<string> {
+    let idLike: string = uuid();
+
+    let isValidId = await new PostController().isValidIdLike(idLike);
+    if (isValidId) {
+      new PostController().generateIdLike();
+    }
+
+    return idLike;
+  }
+
+  /**
+   * Verify if User Like post
+   * @param idUser get the id user and find if user is liked post
+   * @param idPost get the like in user and post already exists
+   * @returns boolean
+   */
+  async isLiked(idUser: string, idPost: string): Promise<boolean> {
+    let likePost = await new PostController().likeRepository.findOne({
+      relations: ["user_like", "post"],
+      where: {
+        user_like: {
+          id_user: idUser,
+        },
+        post: {
+          id_post: idPost,
+        },
+      },
+    });
+    if (likePost) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Like Publication
+   * * in this method the user will can put the like in post
+   * TODO: validate if this post is liked; if is liked remove like,
+   * TODO: and get total like in this publication
+   * @param req
+   * @param res
+   * @returns res.json or in case error resturn a res.status(400).json(Error);
+   */
+
+  async likePublic(req: requestCustom, res: Response): Promise<Response> {
+    let { id_post } = req.body;
+
+    let newLike = new Likes();
+
+    newLike.id_like = await new PostController().generateIdLike();
+
+    // if is liked post, remove that like
+
+    let isLikedPost = await new PostController().isLiked(
+      <string>req.idUser,
+      <string>id_post
+    );
+
+    if (isLikedPost) {
+      await new PostController().likeRepository
+        .createQueryBuilder()
+        .relation("user_like")
+        .delete()
+        .from(Likes)
+        .where("user_like.id_user = :id", { id: <string>req.idUser })
+        .execute();
+
+      let likes = await new PostController().likeRepository.find({
+        relations: ["post"],
+        where: {
+          post: {
+            id_post,
+          },
+        },
+      });
+
+      return res.json({ message: "like Remove", likes: likes.length });
+    }
+
+    try {
+      // instance user what like the post
+      let user = await new PostController().userRepository.findOne({
+        id_user: <string>req.idUser,
+      });
+      newLike.user_like = <User>user;
+
+      // instance the post been liked
+      let post = await new PostController().postRepository.findOne({
+        id_post: id_post,
+      });
+      newLike.post = <Post>post;
+    } catch (error) {
+      return res
+        .status(400)
+        .json({ message: "Error in find post or find user" });
+    }
+
+    if (!newLike.user_like || !newLike.post) {
+      return res.status(400).json({ message: "Donnot find user or post" });
+    }
+
+    try {
+      await new PostController().likeRepository.save(newLike);
+    } catch (err) {
+      return res.status(400).json({ message: "Error in like post" });
+    }
+
+    let likes = await new PostController().likeRepository.find({
+      relations: ["post"],
+      where: {
+        post: {
+          id_post,
+        },
+      },
+    });
+
+    return res.json({ message: "liked post!", likes: likes.length });
   }
 }
-
-
-

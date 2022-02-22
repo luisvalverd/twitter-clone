@@ -1,14 +1,14 @@
 <template>
   <div class="w-full h-auto">
-    <div class="">
+    <div class="overflow-hidden">
       <img :src="backgroundIMG" class="w-full h-64" />
-      <img :src="imgSource" class="rounded-full w-32 fixed top-48 mx-8" />
-      <section class="w-32 p-1 mt-16 mx-8 flex">
-        <label class="text-2xl">{{ getDataUser.nickname }}</label>
-      </section>
-      <section class="fixed top-72 h-10 right-1/4 mr-32 w-24">
+      <img
+        :src="imgSource"
+        class="rounded-full w-32 h-32 absolute top-48 mx-8 border-2"
+      />
+      <section class="flex top-72 h-10 w-full mt-10 justify-end">
         <button
-          class="w-full h-full rounded-full bg-sky-400 text-lg hover:bg-sky-500"
+          class="w-32 h-full rounded-full bg-sky-400 text-lg mr-8 hover:bg-sky-500"
           @click="modal = true"
         >
           Edit
@@ -16,6 +16,9 @@
         <div>
           <EditProfile v-show="modal" :open="modal" @close="closeModal" />
         </div>
+      </section>
+      <section class="w-32 p-1 mt-2 mx-8 flex">
+        <label class="text-2xl">{{ getDataUser.nickname }}</label>
       </section>
     </div>
     <div class="p-1 mx-8">
@@ -60,6 +63,10 @@ export default {
     backgroundIMG: String,
   },
   methods: {
+    props: {
+      imgSource: String,
+      backgroundIMG: String,
+    },
     closeModal(value) {
       this.modal = value;
     },

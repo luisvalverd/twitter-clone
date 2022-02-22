@@ -1,27 +1,28 @@
 import { User } from "../entity/User";
 import { Request } from "express";
+import { Post } from "../entity/Post";
 
 export interface user {
-  id_user: string,
-  avatar?: string,
-  nickname: string,
-  password: string,
-  description?: string,
-  location?: string,
+  id_user: string;
+  avatar?: string;
+  nickname: string;
+  password: string;
+  description?: string;
+  location?: string;
 }
 
 export interface post {
-  id_post: string,
-  description: string,
-  photo?: string,
-  user: User,
-  private?: boolean,
+  id_post: string;
+  description: string;
+  photo?: string;
+  user: User;
+  private?: boolean;
 }
 
 export interface Payload {
   id_user: string;
-  iat: number,
-  exp: number,
+  iat: number;
+  exp: number;
 }
 
 export interface requestCustom extends Request {
@@ -32,4 +33,10 @@ export interface Follow {
   id_follower: string;
   user?: User;
   FollowUser?: User;
+}
+
+export interface likes {
+  id_like: string;
+  user: User;
+  post: Post;
 }

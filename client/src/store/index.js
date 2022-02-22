@@ -34,6 +34,7 @@ export default createStore({
       state.authUser.token = null;
     },
     updateUserData(state, dataUser) {
+      console.log(dataUser);
       state.user.nickname = dataUser.nickname;
       state.user.avatar = dataUser.avatar;
       state.user.description = dataUser.description;
@@ -88,6 +89,10 @@ export default createStore({
       context.commit("logout");
       router.push("/login");
     },
+    /**
+     * TODO: revisar el metodo para ver si eliminarlo o usarolo en un caso especifico
+     * @param {*} contex
+     */
     getMyPosts(contex) {
       axios
         .get("http://localhost:5000/api/v1/gets/my-posts", {
@@ -106,7 +111,65 @@ export default createStore({
         });
     },
     updateUser(contex, newData) {
-      console.log(newData.avatar);
+      axios
+        .post("http://localhost:5000/api/v1/post/update-data-user", newData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "Access-Token": localStorage.getItem("access-token"),
+          },
+        })
+        .then((res) => {
+          localStorage.setItem("access-token", res.headers["access-token"]);
+          console.log(res.data);
+        })
+        .catch((err) => {
+          console.log("Failure");
+          console.log(err);
+        });
+    },
+    searchDataProfile(context, data) {
+      axios
+        .post(
+          "http://localhost:5000/api/v1/post/find-profile",
+          { username: data },
+          {
+            headers: {
+              "Access-Token": localStorage.getItem("access-token"),
+            },
+          }
+        )
+        .then((res) => {
+          let userData = {
+            nickname: res.data.user.nickname,
+            avatar: res.data.user.avatar,
+            backgroundImg: res.data.user.backgroundImg,
+            description: res.data.user.description,
+            location: res.data.user.location,
+            createdUser: res.data.user.created,
+          };
+          context.commit("updateUserData", userData);
+          context.commit("updatePosts", res.data.posts);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+    likePost(contex, id_post) {
+      axios
+        .post(
+          "http://localhost:5000/api/v1/post/like-post",
+          { id_post },
+          {
+            headers: {
+              "Access-Token": localStorage.getItem("access-token"),
+            },
+          }
+        )
+        .then((res) => {
+          localStorage.setItem("access-token", res.headers["access-token"]);
+          console.log(res.data);
+        })
+        .catch((err) => console.log(err));
     },
   },
   getters: {

@@ -3,7 +3,7 @@
     <div class="h-24 flex flex-wrap">
       <label class="font-sans text-xl text-center">Nickname</label>
       <input
-        class="font-sans w-full border-2 rounded-lg text-lg"
+        class="font-sans w-full border-2 rounded-lg text-lg px-4"
         v-model="dataUser.nickname"
         type="text"
         v-on:keyup.enter="sendData"
@@ -12,7 +12,7 @@
     <div class="h-24 flex flex-wrap">
       <label class="font-sans text-xl text-center">Password</label>
       <input
-        class="font-sans w-full border-2 rounded-lg text-lg"
+        class="font-sans w-full border-2 rounded-lg text-lg px-4"
         v-model="dataUser.password"
         type="password"
         v-on:keyup.enter="sendData"
