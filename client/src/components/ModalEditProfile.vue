@@ -140,6 +140,9 @@
 </template>
 
 <script>
+/**
+ * TODO: Actualizar el fondo de perfil
+ */
 import {
   Dialog,
   DialogOverlay,

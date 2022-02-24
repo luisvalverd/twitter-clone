@@ -33,6 +33,11 @@
 </template>
 
 <script>
+/**
+ * * mostrar en cartas los post que hacen los usuarios
+ * TODO: mostrar mis likes mostrando el corazon rojo si yo tengo una plublicacion dada like
+ * TODO: Modificar el boton Edit para que solo aparezca en mi profile y al acceder a otro cambiarlo por sergir
+ */
 import LikeSvg from "./LikeSvg.vue";
 import LikeSvgSolid from "./LikeSvgSolid.vue";
 import { likeAnimation } from "../assets/animations/animations";

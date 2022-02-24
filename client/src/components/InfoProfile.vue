@@ -8,10 +8,23 @@
       />
       <section class="flex top-72 h-10 w-full mt-10 justify-end">
         <button
+          v-if="getDataUser.isMyProfile === true"
           class="w-32 h-full rounded-full bg-sky-400 text-lg mr-8 hover:bg-sky-500"
           @click="modal = true"
         >
           Edit
+        </button>
+        <button
+          v-else-if="getDataUser.isFollow === false"
+          class="w-32 h-full rounded-full bg-gray-100 text-lg mr-8 hover:bg-gray-200 border-2"
+        >
+          Follow
+        </button>
+        <button
+          v-else
+          class="w-32 h-full rounded-full bg-sky-400 text-lg mr-8 hover:bg-sky-500"
+        >
+          Unfollow
         </button>
         <div>
           <EditProfile v-show="modal" :open="modal" @close="closeModal" />
@@ -48,6 +61,9 @@
 </template>
 
 <script>
+/**
+ * TODO: boton cambie if yo sigo al usuario;
+ */
 import { mapGetters } from "vuex";
 import EditProfile from "./ModalEditProfile.vue";
 

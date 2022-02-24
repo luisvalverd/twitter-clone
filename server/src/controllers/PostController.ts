@@ -5,11 +5,13 @@ import { User } from "../entity/User";
 import { post, requestCustom, likes } from "../interfaces/interfaces";
 import { v4 as uuid } from "uuid";
 import { Likes } from "../entity/Likes";
+import { Followers } from "../entity/Followers";
 
 export class PostController {
   postRepository = getRepository(Post);
   userRepository = getRepository(User);
   likeRepository = getRepository(Likes);
+  followRepository = getRepository(Followers);
 
   async isValidId(id: string): Promise<boolean> {
     let post = await this.postRepository.findOne({ id_post: id });
@@ -177,6 +179,7 @@ export class PostController {
     let user;
     let likes;
     let post;
+    let follow;
 
     if (!username || username === "") {
       return res.json({ message: "username is empty" });
@@ -186,7 +189,7 @@ export class PostController {
       user = await new PostController().userRepository
         .createQueryBuilder("user")
         //.leftJoinAndSelect("user.posts", "posts")
-        //.leftJoinAndSelect("user.likes", "likes")
+        //.leftJoinAndSelect("user.followers", "follorwes")
         .where("user.nickname = :username", { username })
         .getOne();
 
@@ -194,7 +197,7 @@ export class PostController {
         relations: ["user", "likes_post"],
         where: {
           user: {
-            id_user: <string>req.idUser,
+            nickname: username,
           },
         },
       });
@@ -203,7 +206,19 @@ export class PostController {
         relations: ["user_like", "post"],
         where: {
           user_like: {
+            nickname: username,
+          },
+        },
+      });
+
+      follow = await new PostController().followRepository.findOne({
+        relations: ["user", "followUser"],
+        where: {
+          user: {
             id_user: <string>req.idUser,
+          },
+          followUser: {
+            id_user: <string>user?.id_user,
           },
         },
       });
@@ -212,7 +227,20 @@ export class PostController {
       return res.status(400).json("Error in find user");
     }
 
-    return res.json({ user, posts: post });
+    //get if this is my profile
+    let isMyProfile = false;
+    if (user?.id_user === req.idUser) {
+      isMyProfile = true;
+    }
+
+    let isFollow = false;
+    if (follow) {
+      isFollow = true;
+    }
+
+    console.log(follow);
+
+    return res.json({ user, posts: post, isMyProfile, isFollow });
   }
 
   async isValidIdLike(id: string): Promise<boolean> {

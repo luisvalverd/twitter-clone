@@ -11,6 +11,8 @@ export default createStore({
       description: "",
       location: "",
       createdUser: null,
+      isMyProfile: false,
+      isFollow: false,
     },
     posts: [],
     authUser: {
@@ -34,13 +36,14 @@ export default createStore({
       state.authUser.token = null;
     },
     updateUserData(state, dataUser) {
-      console.log(dataUser);
       state.user.nickname = dataUser.nickname;
       state.user.avatar = dataUser.avatar;
       state.user.description = dataUser.description;
       state.user.location = dataUser.location;
       state.user.backgroundIMG = dataUser.backgroundImg;
       state.user.createdUser = dataUser.created;
+      state.user.isMyProfile = dataUser.isMyProfile;
+      state.user.isFollow = dataUser.isFollow;
     },
     updatePosts(state, posts) {
       state.posts = posts;
@@ -53,7 +56,6 @@ export default createStore({
         .post("http://localhost:5000/api/v1/auth/login", dataUser)
         .then((res) => {
           localStorage.setItem("access-token", res.headers["access-token"]);
-          //localStorage.setItem("user-data", res.data.nickname);
           context.commit("updateToken", res.headers["access-token"]);
           context.commit("updateUserData", res.data);
           context.commit("loginStop", null);
@@ -146,7 +148,10 @@ export default createStore({
             description: res.data.user.description,
             location: res.data.user.location,
             createdUser: res.data.user.created,
+            isMyProfile: res.data.isMyProfile,
+            isFollow: res.data.isFollow,
           };
+          console.log(userData);
           context.commit("updateUserData", userData);
           context.commit("updatePosts", res.data.posts);
         })
