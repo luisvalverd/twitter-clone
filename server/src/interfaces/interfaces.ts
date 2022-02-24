@@ -27,6 +27,18 @@ export interface Payload {
 
 export interface requestCustom extends Request {
   idUser?: string;
+  files: any;
+}
+
+export interface Provider {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  minetype: string;
+  destination: string;
+  filename: string;
+  path: string;
+  zise: number;
 }
 
 export interface Follow {

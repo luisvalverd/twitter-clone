@@ -7,7 +7,7 @@
       <div class="w-full h-auto">
         <InfoProfile
           :imgSource="'http://localhost:5000/' + getDataUser.avatar"
-          :backgroundIMG="'http://localhost:5000' + getDataUser.backgroundIMG"
+          :backgroundIMG="'http://localhost:5000/' + getDataUser.backgroundIMG"
         />
       </div>
       <div class="px-8 pb-10">

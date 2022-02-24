@@ -1,5 +1,8 @@
 # server ignores
 /server/node_modules
+/server/uploads/backgrounds/*
+/server/uploads/photos/*
+/server/uploads/avatars/*
 
 # client ignores
 /client/node_modules

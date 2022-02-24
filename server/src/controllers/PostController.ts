@@ -1,8 +1,8 @@
-import { Response, Request } from "express";
+import { Response, Request, Express } from "express";
 import { getRepository } from "typeorm";
 import { Post } from "../entity/Post";
 import { User } from "../entity/User";
-import { post, requestCustom, likes } from "../interfaces/interfaces";
+import { post, requestCustom, likes, Provider } from "../interfaces/interfaces";
 import { v4 as uuid } from "uuid";
 import { Likes } from "../entity/Likes";
 import { Followers } from "../entity/Followers";
@@ -45,6 +45,17 @@ export class PostController {
     return pathAvatar;
   }
 
+  async getBackgroundUser(id: string): Promise<string> {
+    let user = await this.userRepository.findOne({ id_user: id });
+
+    if (!user) {
+      return "";
+    }
+
+    let pathBackground = user?.backgroundImg;
+    return pathBackground;
+  }
+
   async createPost(req: requestCustom, res: Response): Promise<Response> {
     let data: post = req.body;
     let newPost = new Post();
@@ -80,6 +91,12 @@ export class PostController {
     return res.json({ message: "post save successfuly" });
   }
 
+  /**
+   * * acutializacion de datos de avatar de usuario
+   * @param req
+   * @param res
+   * @returns
+   */
   async updateAvatar(req: requestCustom, res: Response): Promise<Response> {
     let img = req.file?.path;
 
@@ -99,19 +116,37 @@ export class PostController {
     return res.json({ message: "update image successfuly" });
   }
 
+  /**
+   * * update de user data
+   * @param req
+   * @param res
+   * @returns json with info of user
+   */
   async updateDataUser(req: requestCustom, res: Response): Promise<Response> {
-    let img = req.file?.path;
+    let avatar = req.files.avatar[0];
+    let background = req.files.background[0];
     let { description, location } = req.body;
 
-    if (!img) {
-      img = await new PostController().getImgUser(<string>req.idUser);
+    if (!avatar) {
+      avatar = await new PostController().getImgUser(<string>req.idUser);
+    }
+
+    if (!background) {
+      background = await new PostController().getBackgroundUser(
+        <string>req.idUser
+      );
     }
     let user;
 
     try {
       user = await new PostController().userRepository.update(
         { id_user: req.idUser },
-        { avatar: img, description, location }
+        {
+          avatar: <string>avatar.path,
+          backgroundImg: <string>background.path,
+          description,
+          location,
+        }
       );
     } catch (err) {
       return res.status(400).json({
@@ -122,6 +157,7 @@ export class PostController {
     return res.json(user);
   }
 
+  // revisar si el metodo se utiliza
   async findUserByUsername(
     req: requestCustom,
     res: Response
@@ -144,24 +180,6 @@ export class PostController {
     } catch (error) {
       return res.status(400).json("error in find user");
     }
-  }
-
-  // TODO: revisar si se usa este metodo
-  binarySearch(arr: Array<any>, item: string) {
-    let l = 0,
-      r = arr.length - 1;
-
-    while (l <= r) {
-      let m = l + Math.floor((r - l) / 2);
-      let res = item.localeCompare(arr[m]);
-
-      if (res == 0) return m;
-
-      if (res > 0) l = m + 1;
-      else r = m - 1;
-    }
-
-    return -1;
   }
 
   /**
@@ -188,8 +206,6 @@ export class PostController {
     try {
       user = await new PostController().userRepository
         .createQueryBuilder("user")
-        //.leftJoinAndSelect("user.posts", "posts")
-        //.leftJoinAndSelect("user.followers", "follorwes")
         .where("user.nickname = :username", { username })
         .getOne();
 
@@ -243,6 +259,11 @@ export class PostController {
     return res.json({ user, posts: post, isMyProfile, isFollow });
   }
 
+  /**
+   * * verify if id is use
+   * @param id
+   * @returns boolean if already use the id
+   */
   async isValidIdLike(id: string): Promise<boolean> {
     let likeId = await new PostController().likeRepository.findOne({
       id_like: id,
@@ -255,6 +276,10 @@ export class PostController {
     return false;
   }
 
+  /**
+   * * genera a id to use the in Like
+   * @returns the string id
+   */
   async generateIdLike(): Promise<string> {
     let idLike: string = uuid();
 
@@ -267,7 +292,7 @@ export class PostController {
   }
 
   /**
-   * Verify if User Like post
+   * * Verify if User Like post
    * @param idUser get the id user and find if user is liked post
    * @param idPost get the like in user and post already exists
    * @returns boolean

@@ -1,7 +1,12 @@
 import { FollowersController } from "../controllers/FollowsController";
 import { PostController } from "../controllers/PostController";
 import { isValidToken } from "../middlewares/authentication";
-import { uploadsAvatars, uploadsPhotos } from "../middlewares/uploadImages";
+import {
+  uploadImagesUser,
+  uploadsAvatars,
+  uploadsBackGrounds,
+  uploadsPhotos,
+} from "../middlewares/uploadImages";
 
 export class PostRouter {
   postController: PostController = new PostController();
@@ -24,6 +29,7 @@ export class PostRouter {
       isValidToken,
       this.followController.unFollowUser
     );
+    // update only avatar
     app.post(
       "/api/v1/post/avatar",
       isValidToken,
@@ -33,7 +39,10 @@ export class PostRouter {
     app.post(
       "/api/v1/post/update-data-user",
       isValidToken,
-      uploadsAvatars.single("avatar"),
+      uploadImagesUser.fields([
+        { name: "avatar", maxCount: 1 },
+        { name: "background" },
+      ]),
       this.postController.updateDataUser
     );
     app.post(

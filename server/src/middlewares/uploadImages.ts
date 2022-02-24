@@ -23,6 +23,20 @@ var storageBackGrounds = multer.diskStorage({
   },
 });
 
+var imagesUser = multer.diskStorage({
+  destination: (res, file, cb) => {
+    if (file.fieldname === "avatar") {
+      cb(null, "uploads/avatars");
+    } else {
+      cb(null, "uploads/backgrounds");
+    }
+  },
+  filename: function (req, file, cb) {
+    cb(null, uuid() + path.extname(file.originalname));
+  },
+});
+
 export var uploadsAvatars = multer({ storage: storageAvatars });
 export var uploadsPhotos = multer({ storage: storagePhotos });
 export var uploadsBackGrounds = multer({ storage: storageBackGrounds });
+export var uploadImagesUser = multer({ storage: imagesUser });
