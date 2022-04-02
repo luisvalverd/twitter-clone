@@ -60,6 +60,7 @@ class Server {
     this.getRouter.router(this.app);
   }
 
+  // TODO: implementar salas para chat de usuarios
   sockets(): void {
     this.io.listen(this.server, {
       cors: {
@@ -67,14 +68,19 @@ class Server {
       },
     });
 
+    let rooms = [];
+
     this.io.on("connection", (socket: any) => {
       socket.on("start", (user: any) => {
         socket.username = user;
         console.log(`user ${socket.username} is connected`);
+        socket.join(user);
       });
 
-      socket.on("message", (msg: any) => {
-        socket.broadcast.emit("message:recived", msg);
+      socket.on("message", (data: any) => {
+        //socket.broadcast.emit("message:recived", msg);
+        console.log(socket.rooms);
+        socket.to(data.room).emit("message:recived", data);
       });
 
       socket.on("disconnect", () => {

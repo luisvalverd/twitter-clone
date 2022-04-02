@@ -1,6 +1,7 @@
 import { createStore } from "vuex";
 import axios from "axios";
 import router from "../router";
+import { io } from "socket.io-client";
 
 export default createStore({
   state: {
@@ -20,6 +21,11 @@ export default createStore({
       authIn: false,
       authError: null,
     },
+    chat: {
+      socketInstance: io("ws://localhost:5000"),
+      messages: [],
+    },
+    myFollowing: [],
   },
   mutations: {
     loginStart(state) {
@@ -47,6 +53,12 @@ export default createStore({
     },
     updatePosts(state, posts) {
       state.posts = posts;
+    },
+    startSocket(state) {
+      state.chat.socketInstance.emit("start", state.user.nickname);
+    },
+    updateMyFollowing(state, following) {
+      state.myFollowing = following;
     },
   },
   actions: {
@@ -155,6 +167,23 @@ export default createStore({
         })
         .catch((err) => console.log(err));
     },
+    startChat(contex) {
+      contex.commit("startSocket");
+      contex.dispatch("getMyFollows");
+    },
+    getMyFollows(contex) {
+      axios
+        .get("http://localhost:5000/api/v1/gets/my-following", {
+          headers: {
+            "Access-Token": localStorage.getItem("access-token"),
+          },
+        })
+        .then((res) => {
+          localStorage.setItem("access-token", res.headers["access-token"]);
+          contex.commit("updateMyFollowing", res.data);
+        })
+        .catch((err) => console.log(err));
+    },
   },
   getters: {
     getPosts(state) {
@@ -162,6 +191,12 @@ export default createStore({
     },
     getDataUser(state) {
       return state.user;
+    },
+    getSocket(state) {
+      return state.chat;
+    },
+    getFollowing(state) {
+      return state.myFollowing;
     },
   },
   modules: {},
