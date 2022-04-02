@@ -91,27 +91,6 @@ export default createStore({
       context.commit("logout");
       router.push("/login");
     },
-    /**
-     * TODO: revisar el metodo para ver si eliminarlo o usarolo en un caso especifico
-     * @param {*} contex
-     */
-    getMyPosts(contex) {
-      axios
-        .get("http://localhost:5000/api/v1/gets/my-posts", {
-          headers: {
-            "Access-Token": localStorage.getItem("access-token"),
-          },
-        })
-        .then((res) => {
-          localStorage.setItem("access-token", res.headers["access-token"]);
-          contex.commit("updateToken", res.headers["access-token"]);
-          contex.commit("updateUserData", res.data.user);
-          contex.commit("updatePosts", res.data.MyPosts);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    },
     updateUser(contex, newData) {
       axios
         .post("http://localhost:5000/api/v1/post/update-data-user", newData, {
@@ -151,7 +130,7 @@ export default createStore({
             isMyProfile: res.data.isMyProfile,
             isFollow: res.data.isFollow,
           };
-          console.log(userData);
+          localStorage.setItem("access-token", res.headers["access-token"]);
           context.commit("updateUserData", userData);
           context.commit("updatePosts", res.data.posts);
         })

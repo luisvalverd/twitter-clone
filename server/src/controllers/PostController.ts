@@ -239,7 +239,6 @@ export class PostController {
         },
       });
     } catch (error) {
-      console.log(error);
       return res.status(400).json("Error in find user");
     }
 
@@ -253,8 +252,6 @@ export class PostController {
     if (follow) {
       isFollow = true;
     }
-
-    console.log(follow);
 
     return res.json({ user, posts: post, isMyProfile, isFollow });
   }

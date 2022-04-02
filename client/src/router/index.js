@@ -4,6 +4,8 @@ import Home from "../views/Home.vue";
 import Login from "../views/Login.vue";
 import Register from "../views/Register.vue";
 import Profile from "../views/Profile.vue";
+import CreatePost from "../views/CreatePost.vue";
+import Chat from "../views/Chat.vue";
 
 const routes = [
   {
@@ -27,6 +29,16 @@ const routes = [
     component: Profile,
   },
   {
+    path: "/create-post",
+    name: "CreatePost",
+    component: CreatePost,
+  },
+  {
+    path: "/chat",
+    name: "Chat",
+    component: Chat,
+  },
+  {
     path: "/about",
     name: "About",
     // route level code-splitting
@@ -46,11 +58,11 @@ router.beforeEach((to, from, next) => {
   store.dispatch("fetchAccessToken");
   let nickname = "/profile/" + to.params.nickname;
   if (
-    to.fullPath === "/about" ||
+    to.fullPath === "/chat" ||
     to.fullPath === "/" ||
     to.fullPath === nickname
   ) {
-    if (!store.state.authUser.token) {
+    if (!store.state.authUser.token || !store.state.user) {
       next("/login");
     }
   }

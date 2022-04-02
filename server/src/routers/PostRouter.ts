@@ -60,5 +60,6 @@ export class PostRouter {
       isValidToken,
       this.postController.likePublic
     );
+    // socket route start
   }
 }
