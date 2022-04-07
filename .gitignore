@@ -4,6 +4,10 @@
 /server/uploads/photos/*
 /server/uploads/avatars/*
 
+# server chat 
+/chat-server/node_modules
+/chat-server/.vscode
+
 # client ignores
 /client/node_modules
 /client/tests
