@@ -28,7 +28,7 @@
           <div class="">
             <ul v-for="message in messages" v-bind:key="message.id">
               <li class="mx-4 h-6">
-                <b>{{ message.sender }}</b>
+                <b>{{ message.emitter }}</b>
                 : {{ message.text }}
               </li>
             </ul>
@@ -86,7 +86,7 @@ export default {
       const message = {
         id: new Date().getTime(),
         text: this.text,
-        sender: this.currentUser,
+        emitter: this.currentUser,
         reciver: this.user,
       };
 
@@ -99,6 +99,16 @@ export default {
       this.user = dataUser.nickname;
       this.avatar = dataUser.avatar;
       this.description = dataUser.description;
+
+      this.getSocket().socketInstance.emit("connect chat", {
+        emitter: store.state.user.nickname,
+        reciver: this.user,
+      });
+
+      this.getSocket().socketInstance.on("get messages", (data) => {
+        this.messages = data;
+        console.log(this.messages);
+      });
     },
   },
   mounted() {
@@ -111,6 +121,9 @@ export default {
       "exit user",
       store.state.user.nickname
     );
+  },
+  create() {
+    this.getSocket().socketInstance.emit("start", store.state.user.nickname);
   },
 };
 </script>

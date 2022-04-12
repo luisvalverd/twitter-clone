@@ -11,11 +11,13 @@ const Messages = require("../model/Messages");
 async function getChat(req, res) {
   const { users_chat } = req.body;
 
-  let chat = await Chat.findOne({ users: { $all: users_chat } });
+  let chat = await Chat.findOne({ users: { $all: users_chat } }).populate(
+    "messages"
+  );
 
   if (!chat) {
     //return res.redirect("/api/chat/v1/create-chat");
-    return res.status(400).json("donnot find the chat");
+    return res.status(204).json("donnot find the chat");
   }
 
   return res.json(chat);
@@ -68,7 +70,9 @@ async function createChat(req, res) {
  * @returns
  */
 async function addMessage(req, res) {
-  const { users_chat, message, emitter, reciver } = req.body;
+  const { users_chat, text, emitter, reciver } = req.body;
+
+  console.log(users_chat);
 
   let chatExist = await Chat.findOne({ users: { $all: users_chat } });
 
@@ -93,7 +97,7 @@ async function addMessage(req, res) {
   }
 
   // varify if message is not empty
-  if (message === "" || message === undefined || message === null) {
+  if (text === "" || text === undefined || text === null) {
     return res.json("message is empty");
   }
 
@@ -103,7 +107,7 @@ async function addMessage(req, res) {
     let newMessage = new Messages({
       emitter,
       reciver,
-      message,
+      text,
       date_message: {
         date: date.toLocaleDateString(),
         time: date.toLocaleTimeString(),

@@ -63,7 +63,6 @@ class Server {
     this.getRouter.router(this.app);
   }
 
-  // TODO: implementar salas para chat de usuarios
   sockets(): void {
     this.io.listen(this.server, {
       cors: {
@@ -71,9 +70,12 @@ class Server {
       },
     });
 
-    //client;
-    // TODO: init connection redis
     this.io.on("connection", (socket: any) => {
+      /**
+       * * when the init chat save nickname and socket id in database
+       * * for use in other funtions of sockets
+       * ? this is call only we conected of chat
+       */
       socket.on("start", (user: any) => {
         socket.username = user;
         console.log(`user ${socket.username} is connected`);
@@ -86,34 +88,74 @@ class Server {
           })
           .then((res) => console.log(res.data))
           .catch((err) => console.log(err.message));
-        //socket.join(user);
       });
 
       /**
        * * get a messsages of chat when the user click the chat
-       * TODO: verify if exist chat if not exit create chat
+       * * if not exist chat we are create and save in databaes of server chat
+       * ? esto solo se llama cuando hacemos click en un chat
        */
-      socket.on("get messages", (users: any) => {
+      socket.on("connect chat", async (data: any) => {
+        let users: any[] = [];
+
+        users.push(data.emitter);
+
+        if (Array.isArray(data.reciver)) {
+          for (let i = 0; i < data.reciver.length; i++) {
+            users.push(data.reciver[i]);
+          }
+        } else {
+          users.push(data.reciver);
+        }
+
+        let chat: any = await axios.post(<string>this.uri + "/get-chat", {
+          users_chat: users,
+        });
+
+        if (chat.status === 200) {
+          socket.emit("get messages", chat.data.messages);
+          return;
+        }
+
         axios
-          .post(<string>this.uri, { users_chat: users })
+          .post(<string>this.uri + "/create-chat", { users_chat: users })
           .then((res) => console.log(res.data))
           .catch((err) => console.log(err.message));
       });
 
+      /**
+       * * message: es para que el servidor reciva los mensages del usuario con los datos
+       * * del usuario al que se quire mandar la informacion y luego lo envia usando
+       * * message:recived usando la rooms que se crean por defecto para cada usuario
+       * * para saber el socket id del usuario al que queremos mandar se hace una peticion al servidor del chat
+       * * con el nickname del usuario al que queremos mander el mensage, el servidor nos respone con json con la informacion
+       * TODO: hacer que en caso de no encontrar ningun usuario no se envie ningun mensage;
+       */
       socket.on("message", async (data: any) => {
-        //socket.broadcast.emit("message:recived", msg);
         let user: any = await axios
           .post(<string>this.uri + "/get-user-socket", {
             nickname: data.reciver,
           })
           .catch((err) => console.log(err.message));
 
-        console.log(<any>user.data.socket_id);
-        console.log(socket.rooms);
-        //this.io.of(user.data.socket_id).emit("message:recived", data);
+        axios
+          .post(<string>this.uri + "/send-message", {
+            emitter: data.emitter,
+            reciver: data.reciver,
+            text: data.text,
+            users_chat: [data.emitter, data.reciver],
+          })
+          .then((res) => console.log(res.data))
+          .catch((err) => console.log(err.message));
+
         socket.to(<any>user.data.socket_id).emit("message:recived", data);
       });
 
+      /**
+       * * exit user desconecta al usuario en caso de que se salga del chat
+       * * ademas de desconectarlo lo eliminamos de la base de datos usando axios
+       * ? esto no cierra el socket solo lo desconecta temporalmente
+       */
       socket.on("exit user", (nickname: any) => {
         axios
           .post(<string>this.uri + "/remove-user", {
@@ -121,6 +163,8 @@ class Server {
           })
           .then((res) => console.log(res.data))
           .catch((err) => console.log(err.message));
+
+        console.log(`user ${nickname} disconnected of chat...`);
       });
 
       socket.on("disconnect", () => {
