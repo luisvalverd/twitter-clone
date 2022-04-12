@@ -28,7 +28,7 @@
           <div class="">
             <ul v-for="message in messages" v-bind:key="message.id">
               <li class="mx-4 h-6">
-                <b>{{ message.user }}</b>
+                <b>{{ message.sender }}</b>
                 : {{ message.text }}
               </li>
             </ul>
@@ -86,8 +86,8 @@ export default {
       const message = {
         id: new Date().getTime(),
         text: this.text,
-        user: this.currentUser,
-        room: this.user,
+        sender: this.currentUser,
+        reciver: this.user,
       };
 
       this.messages = this.messages.concat(message);
@@ -105,6 +105,12 @@ export default {
     this.getSocket().socketInstance.on("message:recived", (data) => {
       this.messages = this.messages.concat(data);
     });
+  },
+  beforeUnmount() {
+    this.getSocket().socketInstance.emit(
+      "exit user",
+      store.state.user.nickname
+    );
   },
 };
 </script>

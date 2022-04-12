@@ -77,7 +77,6 @@ router.beforeEach((to, from, next) => {
 router.afterEach((to) => {
   let nickname = "/profile/" + to.params.nickname;
   if (to.fullPath === nickname) {
-    //store.dispatch("getMyPosts");
     store.dispatch("searchDataProfile", to.params.nickname);
   }
 });

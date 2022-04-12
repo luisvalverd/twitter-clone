@@ -31,6 +31,8 @@
     "typescript": "^4.5.4"
   },
   "dependencies": {
+    "@types/axios": "^0.14.0",
+    "@types/redis": "^4.0.11",
     "bcrypt": "^5.0.1",
     "body-parser": "^1.19.1",
     "cors": "^2.8.5",

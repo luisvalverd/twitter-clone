@@ -12,6 +12,8 @@ import * as SocketIO from "socket.io";
 import { headersExpose } from "./middlewares/headers";
 import { GetRouter } from "./routers/GetRouter";
 import path from "path";
+//import client from "./middlewares/RedisChat";
+import axios from "axios";
 
 dotenv.config();
 
@@ -23,6 +25,7 @@ class Server {
   public getRouter: GetRouter = new GetRouter();
   public server: http.Server;
   public io: SocketIO.Server = new SocketIO.Server();
+  private uri?: string = process.env.CHAT_URI;
 
   constructor() {
     this.port = <any>process.env.PORT;
@@ -68,22 +71,60 @@ class Server {
       },
     });
 
-    let rooms = [];
-
+    //client;
+    // TODO: init connection redis
     this.io.on("connection", (socket: any) => {
       socket.on("start", (user: any) => {
         socket.username = user;
         console.log(`user ${socket.username} is connected`);
-        socket.join(user);
+
+        // * save user and socket in server chat
+        axios
+          .post(<string>this.uri + "/add-user", {
+            socketID: socket.id,
+            nickname: <string>user,
+          })
+          .then((res) => console.log(res.data))
+          .catch((err) => console.log(err.message));
+        //socket.join(user);
       });
 
-      socket.on("message", (data: any) => {
+      /**
+       * * get a messsages of chat when the user click the chat
+       * TODO: verify if exist chat if not exit create chat
+       */
+      socket.on("get messages", (users: any) => {
+        axios
+          .post(<string>this.uri, { users_chat: users })
+          .then((res) => console.log(res.data))
+          .catch((err) => console.log(err.message));
+      });
+
+      socket.on("message", async (data: any) => {
         //socket.broadcast.emit("message:recived", msg);
+        let user: any = await axios
+          .post(<string>this.uri + "/get-user-socket", {
+            nickname: data.reciver,
+          })
+          .catch((err) => console.log(err.message));
+
+        console.log(<any>user.data.socket_id);
         console.log(socket.rooms);
-        socket.to(data.room).emit("message:recived", data);
+        //this.io.of(user.data.socket_id).emit("message:recived", data);
+        socket.to(<any>user.data.socket_id).emit("message:recived", data);
+      });
+
+      socket.on("exit user", (nickname: any) => {
+        axios
+          .post(<string>this.uri + "/remove-user", {
+            nickname: nickname,
+          })
+          .then((res) => console.log(res.data))
+          .catch((err) => console.log(err.message));
       });
 
       socket.on("disconnect", () => {
+        // * remove to the user in chat server
         console.log(`user ${socket.id} left`);
       });
     });

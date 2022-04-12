@@ -8,9 +8,17 @@ const Messages = require("../model/Messages");
  * @param {*} res
  * @returns json
  */
-function getChat(req, res) {
-  const { users } = req.body;
-  return res.json(users);
+async function getChat(req, res) {
+  const { users_chat } = req.body;
+
+  let chat = await Chat.findOne({ users: { $all: users_chat } });
+
+  if (!chat) {
+    //return res.redirect("/api/chat/v1/create-chat");
+    return res.status(400).json("donnot find the chat");
+  }
+
+  return res.json(chat);
 }
 
 /**
@@ -120,7 +128,7 @@ async function addMessage(req, res) {
  * * verify if the reciver belong a chat
  * ? this function is private
  * @param {*} reciver
- * @returns
+ * @returns bolean
  */
 function _isUserBelongGroup(reciver, group) {
   for (let i = 0; i < reciver.length; i++) {
