@@ -72,8 +72,6 @@ async function createChat(req, res) {
 async function addMessage(req, res) {
   const { users_chat, text, emitter, reciver } = req.body;
 
-  console.log(users_chat);
-
   let chatExist = await Chat.findOne({ users: { $all: users_chat } });
 
   if (!chatExist) {

@@ -33,9 +33,10 @@
 <script>
 import Navbar from "../components/NavBar.vue";
 import CardPostUser from "../components/CardPostUsers.vue";
-import { mapGetters } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 import InfoProfile from "../components/InfoProfile.vue";
 import SearchUser from "../components/SearchUser.vue";
+import store from "../store/index";
 
 export default {
   name: "Profile",
@@ -47,6 +48,14 @@ export default {
   },
   computed: {
     ...mapGetters(["getPosts", "getDataUser"]),
+    ...mapActions(["updateUserDataStore"]),
+  },
+  created() {
+    let user = this.$cookies.get("user");
+    if (store.state.user.nickname === null && user.nickname !== null) {
+      //this.updateUserDataStore(user);
+      this.$store.dispatch("updateUserDataStore", user);
+    }
   },
 };
 </script>

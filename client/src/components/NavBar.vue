@@ -36,7 +36,6 @@
           <a
             class="w-full h-1/2 text-lg px-6 py-4 transition rounded-full hover:bg-gray-200"
             :href="`/#/profile/${myNickname}`"
-            @click="searchDataProfile"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

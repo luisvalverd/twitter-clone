@@ -6,6 +6,7 @@ import Register from "../views/Register.vue";
 import Profile from "../views/Profile.vue";
 import CreatePost from "../views/CreatePost.vue";
 import Chat from "../views/Chat.vue";
+import Cookies from "js-cookie";
 
 const routes = [
   {
@@ -54,9 +55,14 @@ const router = createRouter({
   routes,
 });
 
+// TODO: change path profile/null from profile/{nickname};
+// * if is null and cookie get data change null with data nicknanme of cookies
+
 router.beforeEach((to, from, next) => {
   store.dispatch("fetchAccessToken");
+  let user = JSON.parse(Cookies.get("user"));
   let nickname = "/profile/" + to.params.nickname;
+
   if (
     to.fullPath === "/chat" ||
     to.fullPath === "/" ||
@@ -71,14 +77,25 @@ router.beforeEach((to, from, next) => {
       next("/");
     }
   }
+  // * update data user with cookies
+  if (to.fullPath === nickname) {
+    if (to.params.nickname !== "null") {
+      store.dispatch("searchDataProfile", to.params.nickname);
+    }
+    if (to.params.nickname === "null" && user.nickname !== null) {
+      store.dispatch("updateUserDataStore", user);
+      next("/profile/" + user.nickname);
+    }
+  }
   next();
 });
 
+/*
 router.afterEach((to) => {
   let nickname = "/profile/" + to.params.nickname;
   if (to.fullPath === nickname) {
     store.dispatch("searchDataProfile", to.params.nickname);
   }
 });
-
+*/
 export default router;

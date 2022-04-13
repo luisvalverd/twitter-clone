@@ -2,6 +2,11 @@ import { createStore } from "vuex";
 import axios from "axios";
 import router from "../router";
 import { io } from "socket.io-client";
+import Cookies from "js-cookie";
+
+/**
+ * *save data of user in cookies
+ */
 
 export default createStore({
   state: {
@@ -50,6 +55,7 @@ export default createStore({
       state.user.createdUser = dataUser.created;
       state.user.isMyProfile = dataUser.isMyProfile;
       state.user.isFollow = dataUser.isFollow;
+      Cookies.set("user", JSON.stringify(dataUser));
     },
     updatePosts(state, posts) {
       state.posts = posts;
@@ -83,7 +89,6 @@ export default createStore({
         .post("http://localhost:5000/api/v1/auth/register", dataUser)
         .then((res) => {
           localStorage.setItem("access-token", res.headers["access-token"]);
-          //localStorage.setItem("user-data", res.data.nickname);
           contex.commit("updateToken", res.headers["access-token"]);
           contex.commit("updateUserData", res.data);
           contex.commit("loginStop", null);
@@ -147,7 +152,7 @@ export default createStore({
           context.commit("updatePosts", res.data.posts);
         })
         .catch((err) => {
-          console.log(err);
+          console.log(err.message);
         });
     },
     likePost(contex, id_post) {
@@ -183,6 +188,9 @@ export default createStore({
           contex.commit("updateMyFollowing", res.data);
         })
         .catch((err) => console.log(err));
+    },
+    updateUserDataStore(context, data) {
+      context.commit("updateUserData", data);
     },
   },
   getters: {

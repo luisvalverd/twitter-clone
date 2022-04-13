@@ -15,7 +15,7 @@ app.set("port", process.env.PORT);
 app.use(morgan("dev"));
 app.use(
   cors({
-    origin: /*"http://localhost:5000"*/ "*",
+    origin: "http://localhost:5000" /*"*"*/,
     optionsSuccessStatus: 200,
   })
 );
