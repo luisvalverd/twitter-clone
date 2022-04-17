@@ -16,6 +16,10 @@ export class Post {
   @Column({ nullable: false })
   created: string;
 
+  // ? hour of public post
+  @Column({ nullable: false })
+  time: string;
+
   @Column({ unique: false, default: false })
   private: boolean;
 

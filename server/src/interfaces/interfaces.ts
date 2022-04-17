@@ -9,6 +9,7 @@ export interface user {
   password: string;
   description?: string;
   location?: string;
+  confirmPassword?: string;
 }
 
 export interface post {

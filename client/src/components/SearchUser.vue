@@ -2,6 +2,10 @@
   <div>
     <div
       class="mt-10 flex flex-row justify-center bg-white pl-6 rounded-full border-2 hover:border-sky-600"
+      :class="{
+        'border-blue-600': isSelected,
+        '': !isSelected,
+      }"
       id="search-div"
       ref="conteiner_search"
       @click="selectSearch"
@@ -30,7 +34,8 @@
         @keyup="searchRefs($event.target.value)"
         class="w-96 h-12 rounded-full px-6 outline-none font-light text-gray-500"
         @keyup.enter="searchRefs($event.target.value)"
-        @focus="handleFocus"
+        @focus="isSelected = true"
+        @blur="isSelected = false"
       />
     </div>
     <div
@@ -75,6 +80,7 @@ export default {
       dataSearch: "",
       results: [],
       isSelected: false,
+      line: "border-sky-600",
     };
   },
   methods: {
@@ -111,6 +117,11 @@ export default {
     },
     searchUser(data) {
       this.searchDataProfile(data);
+      this.results = [];
+      this.resetInput();
+    },
+    resetInput() {
+      this.$refs.search.value = "";
     },
   },
 };

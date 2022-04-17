@@ -17,12 +17,14 @@
         <button
           v-else-if="getDataUser.isFollow === false"
           class="w-32 h-full rounded-full bg-gray-100 text-lg mr-8 hover:bg-gray-200 border-2"
+          @click="follow"
         >
           Follow
         </button>
         <button
           v-else
           class="w-32 h-full rounded-full bg-sky-400 text-lg mr-8 hover:bg-sky-500"
+          @click="unfollow"
         >
           Unfollow
         </button>
@@ -64,7 +66,7 @@
 /**
  * TODO: boton cambie if yo sigo al usuario;
  */
-import { mapGetters } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 import EditProfile from "./ModalEditProfile.vue";
 
 export default {
@@ -85,6 +87,13 @@ export default {
     },
     closeModal(value) {
       this.modal = value;
+    },
+    ...mapActions(["followUser", "unFollowUser"]),
+    follow() {
+      this.followUser(this.getDataUser.nickname);
+    },
+    unfollow() {
+      this.unFollowUser(this.getDataUser.nickname);
     },
   },
   computed: {

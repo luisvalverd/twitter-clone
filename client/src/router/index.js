@@ -60,7 +60,6 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   store.dispatch("fetchAccessToken");
-  let user = JSON.parse(Cookies.get("user"));
   let nickname = "/profile/" + to.params.nickname;
 
   if (
@@ -77,8 +76,20 @@ router.beforeEach((to, from, next) => {
       next("/");
     }
   }
+
+  if (to.fullPath === "/") {
+    console.log("ok");
+    store.dispatch("getPostFollows");
+  }
+
   // * update data user with cookies
   if (to.fullPath === nickname) {
+    if (!Cookies.get("user") && store.state.user.nickname === null) {
+      store.dispatch("logout");
+    }
+
+    let user = JSON.parse(Cookies.get("user"));
+
     if (to.params.nickname !== "null") {
       store.dispatch("searchDataProfile", to.params.nickname);
     }
@@ -87,15 +98,18 @@ router.beforeEach((to, from, next) => {
       next("/profile/" + user.nickname);
     }
   }
+
+  if (to.fullPath === "/chat") {
+    if (!Cookies.get("user") && store.state.user.nickname === null) {
+      store.dispatch("logout");
+    }
+
+    let user = JSON.parse(Cookies.get("user"));
+    if (store.state.user.nickname === null && user.nickname !== null) {
+      store.dispatch("updateUserDataStore", user);
+    }
+  }
   next();
 });
 
-/*
-router.afterEach((to) => {
-  let nickname = "/profile/" + to.params.nickname;
-  if (to.fullPath === nickname) {
-    store.dispatch("searchDataProfile", to.params.nickname);
-  }
-});
-*/
 export default router;

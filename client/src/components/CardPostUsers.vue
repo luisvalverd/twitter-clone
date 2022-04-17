@@ -15,7 +15,7 @@
         {{ description }}
       </p>
     </div>
-    <div v-if="photoPost !== ''">
+    <div v-if="photoPost !== '' && photoPost !== 'null'">
       <img
         :src="'http://localhost:5000/' + photoPost"
         class="rounded-xl mt-10 mb-5"

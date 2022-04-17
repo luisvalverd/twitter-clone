@@ -64,6 +64,12 @@ export class PostController {
 
     if (filePath) {
       data.photo = filePath;
+    } else {
+      data.photo = "";
+    }
+
+    if (data.private) {
+      data.private = JSON.parse(<any>data.private);
     }
 
     if (data.description === "") {
@@ -75,6 +81,7 @@ export class PostController {
     newPost.photo = data.photo || "";
     newPost.private = data.private || false;
     newPost.created = <string>date.toLocaleDateString();
+    newPost.time = <string>date.toLocaleTimeString();
 
     let user = await new PostController().userRepository.findOne({
       id_user: req.idUser,
@@ -188,6 +195,7 @@ export class PostController {
    * * get my likes when I search a user o my user
    * TODO: create a method validate if in public I like
    * TODO: compare two arrays without my complexity beaing greater thah n squared
+   * TODO: validate if post of other user is private and dont show;
    * @param req
    * @param res
    * @returns

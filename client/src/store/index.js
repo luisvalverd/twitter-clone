@@ -31,6 +31,7 @@ export default createStore({
       messages: [],
     },
     myFollowing: [],
+    postFollows: [],
   },
   mutations: {
     loginStart(state) {
@@ -42,6 +43,7 @@ export default createStore({
     loginStop(state, errorMessage) {
       state.authUser.authIn = false;
       state.authUser.authError = errorMessage;
+      state.postFollows = [];
     },
     logout(state) {
       state.authUser.token = null;
@@ -65,6 +67,12 @@ export default createStore({
     },
     updateMyFollowing(state, following) {
       state.myFollowing = following;
+    },
+    addNewFollowing(state, data) {
+      state.myFollowing.push(data);
+    },
+    updatePostFollows(state, data) {
+      state.postFollows = data;
     },
   },
   actions: {
@@ -100,11 +108,12 @@ export default createStore({
     },
     fetchAccessToken(contex) {
       contex.commit("updateToken", localStorage.getItem("access-token"));
-      //contex.commit("updateUserData", localStorage.getItem("user-data"));
     },
     logout(context) {
       localStorage.removeItem("access-token");
-      //localStorage.removeItem("user-data");
+      if (Cookies.get("user")) {
+        Cookies.remove("user");
+      }
       context.commit("logout");
       router.push("/login");
     },
@@ -185,12 +194,84 @@ export default createStore({
         })
         .then((res) => {
           localStorage.setItem("access-token", res.headers["access-token"]);
-          contex.commit("updateMyFollowing", res.data);
+          contex.commit("updateMyFollowing", res.data.followUser);
         })
         .catch((err) => console.log(err));
     },
     updateUserDataStore(context, data) {
       context.commit("updateUserData", data);
+    },
+    createPost(context, data) {
+      axios
+        .post("http://localhost:5000/api/v1/post/create-post", data, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "Access-Token": localStorage.getItem("access-token"),
+          },
+        })
+        .then((res) => {
+          localStorage.setItem("access-token", res.headers["access-token"]);
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+    },
+    followUser(context, data) {
+      axios
+        .post(
+          "http://localhost:5000/api/v1/post/follow-user",
+          { nicknameUserFollow: data },
+          {
+            headers: {
+              "Access-Token": localStorage.getItem("access-token"),
+            },
+          }
+        )
+        .then((res) => {
+          localStorage.setItem("access-token", res.headers["access-token"]);
+          context.commit("addNewFollowing", {
+            followUser: res.data.follower.followUser, // data of user following
+          });
+          router.go();
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+    },
+    unFollowUser(context, data) {
+      axios
+        .post(
+          "http://localhost:5000/api/v1/post/unfollow-user",
+          { nicknameUserFollow: data },
+          {
+            headers: {
+              "Access-Token": localStorage.getItem("access-token"),
+            },
+          }
+        )
+        .then((res) => {
+          localStorage.setItem("access-token", res.headers["access-token"]);
+          this.dispatch("getMyFollows");
+          router.go();
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+    },
+    getPostFollows(context) {
+      axios
+        .get("http://localhost:5000/api/v1/gets/post-following", {
+          headers: {
+            "Access-Token": localStorage.getItem("access-token"),
+          },
+        })
+        .then((res) => {
+          localStorage.setItem("access-token", res.headers["access-token"]);
+          context.commit("updatePostFollows", res.data);
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
     },
   },
   getters: {
@@ -205,6 +286,9 @@ export default createStore({
     },
     getFollowing(state) {
       return state.myFollowing;
+    },
+    getPostFollow(state) {
+      return state.postFollows;
     },
   },
   modules: {},

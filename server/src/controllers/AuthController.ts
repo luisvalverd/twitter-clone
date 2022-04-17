@@ -79,6 +79,10 @@ export class AuthController {
     let id = await new AuthController().generateID();
     let hash = await bcrypt.hash(data.password, 10);
 
+    if (data.confirmPassword !== data.password) {
+      return res.status(409).json("passwords not match...");
+    }
+
     user.id_user = <string>id;
     user.nickname = <string>data.nickname;
     user.password = <string>hash;
