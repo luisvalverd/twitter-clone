@@ -194,7 +194,6 @@ export class PostController {
    * * use a binary search to de find publications what the user is liked
    * * get my likes when I search a user o my user
    * TODO: create a method validate if in public I like
-   * TODO: compare two arrays without my complexity beaing greater thah n squared
    * TODO: validate if post of other user is private and dont show;
    * @param req
    * @param res
@@ -323,8 +322,6 @@ export class PostController {
   /**
    * Like Publication
    * * in this method the user will can put the like in post
-   * TODO: validate if this post is liked; if is liked remove like,
-   * TODO: and get total like in this publication
    * @param req
    * @param res
    * @returns res.json or in case error resturn a res.status(400).json(Error);
@@ -337,7 +334,7 @@ export class PostController {
 
     newLike.id_like = await new PostController().generateIdLike();
 
-    // if is liked post, remove that like
+    // * if is liked post, remove that like
 
     let isLikedPost = await new PostController().isLiked(
       <string>req.idUser,
@@ -384,6 +381,7 @@ export class PostController {
     }
 
     if (!newLike.user_like || !newLike.post) {
+      console.log(newLike.post);
       return res.status(400).json({ message: "Donnot find user or post" });
     }
 

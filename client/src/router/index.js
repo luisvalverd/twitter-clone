@@ -55,7 +55,6 @@ const router = createRouter({
   routes,
 });
 
-// TODO: change path profile/null from profile/{nickname};
 // * if is null and cookie get data change null with data nicknanme of cookies
 
 router.beforeEach((to, from, next) => {
@@ -78,7 +77,6 @@ router.beforeEach((to, from, next) => {
   }
 
   if (to.fullPath === "/") {
-    console.log("ok");
     store.dispatch("getPostFollows");
   }
 
@@ -109,6 +107,7 @@ router.beforeEach((to, from, next) => {
       store.dispatch("updateUserDataStore", user);
     }
   }
+
   next();
 });
 

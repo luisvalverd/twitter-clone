@@ -38,10 +38,11 @@
             :key="data.id_post"
             :nicknameUser="data.user.nickname"
             :description="data.user.description"
-            :likesCount="data.likes"
+            :likesCount="data.likes_post.length"
             :created="data.created"
             :img="'http://localhost:5000/' + data.user.avatar"
             :photoPost="data.photo"
+            :idPost="data.id_post"
           />
         </div>
       </div>

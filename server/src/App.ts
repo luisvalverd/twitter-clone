@@ -129,7 +129,6 @@ class Server {
        * * message:recived usando la rooms que se crean por defecto para cada usuario
        * * para saber el socket id del usuario al que queremos mandar se hace una peticion al servidor del chat
        * * con el nickname del usuario al que queremos mander el mensage, el servidor nos respone con json con la informacion
-       * TODO: hacer que en caso de no encontrar ningun usuario no se envie ningun mensage;
        */
       socket.on("message", async (data: any) => {
         let user: any = await axios

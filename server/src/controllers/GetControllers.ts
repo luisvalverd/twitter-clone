@@ -1,14 +1,16 @@
-import { getRepository } from "typeorm";
+import { getRepository, Repository } from "typeorm";
 import { Post } from "../entity/Post";
 import { requestCustom } from "../interfaces/interfaces";
 import { Response } from "express";
 import { Followers } from "../entity/Followers";
 import { User } from "../entity/User";
+import { Likes } from "../entity/Likes";
 
 export class GetController {
   postRepository = getRepository(Post);
   followerRepository = getRepository(Followers);
   userRepository = getRepository(User);
+  likeRepository = getRepository(Likes);
 
   async getAllMyPost(req: requestCustom, res: Response): Promise<Response> {
     let getMyPosts = await new GetController().postRepository.find({
@@ -78,8 +80,29 @@ export class GetController {
       return res.status(400).json({ message: "error in request" });
     }
 
-    console.log(post.sort((a: any, b: any) => a.created > b.created));
+    //console.log(post.sort((a: any, b: any) => a.created > b.created));
 
     return res.json(post);
+  }
+
+  async getIdLikes(req: requestCustom, res: Response) {
+    let likes: any;
+
+    try {
+      likes = await new GetController().likeRepository
+        .createQueryBuilder("likes")
+        .leftJoinAndSelect("like.post", "post")
+        .leftJoinAndSelect("like.like_user", "user")
+        .where("user.id_user = :id_user", { id_user: req.idUser })
+        .getMany();
+
+      likes = likes.map((like: any) => {
+        return like.post.id_post;
+      });
+    } catch (error) {
+      return res.status(204).json("Donnot find Likes");
+    }
+
+    return res.json(likes);
   }
 }

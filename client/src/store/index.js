@@ -32,6 +32,7 @@ export default createStore({
     },
     myFollowing: [],
     postFollows: [],
+    likes: [],
   },
   mutations: {
     loginStart(state) {
@@ -57,6 +58,7 @@ export default createStore({
       state.user.createdUser = dataUser.created;
       state.user.isMyProfile = dataUser.isMyProfile;
       state.user.isFollow = dataUser.isFollow;
+      state.likes = dataUser.likes;
       Cookies.set("user", JSON.stringify(dataUser));
     },
     updatePosts(state, posts) {
@@ -74,6 +76,10 @@ export default createStore({
     updatePostFollows(state, data) {
       state.postFollows = data;
     },
+    updateLikes(state, data) {
+      state.likes = data;
+      Cookies.set("likes", JSON.stringify(data.likes));
+    },
   },
   actions: {
     loginUser(context, dataUser) {
@@ -83,6 +89,7 @@ export default createStore({
         .then((res) => {
           localStorage.setItem("access-token", res.headers["access-token"]);
           context.commit("updateToken", res.headers["access-token"]);
+          context.commit("updateLikes", res.data.likes);
           context.commit("updateUserData", res.data);
           context.commit("loginStop", null);
           router.push("/");
@@ -273,6 +280,26 @@ export default createStore({
           console.log(err.message);
         });
     },
+    updateLikesDataStore(context, data) {
+      context.commit("updateLikes", data);
+    },
+    getIdLikes(context) {
+      axios
+        .get("http://localhost:5000/api/v1/gets/my-likes", {
+          headers: {
+            "Access-Token": localStorage.getItem("access-token"),
+          },
+        })
+        .then((res) => {
+          localStorage.setItem("access-token", res.headers["access-token"]);
+          context.commit("updateLikes", res.data);
+          //Cookies.set("likes", JSON.stringify(res.data));
+          console.log(res.data);
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+    },
   },
   getters: {
     getPosts(state) {
@@ -289,6 +316,9 @@ export default createStore({
     },
     getPostFollow(state) {
       return state.postFollows;
+    },
+    getLikesPost(state) {
+      return state.likes;
     },
   },
   modules: {},

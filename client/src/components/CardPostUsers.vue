@@ -35,14 +35,14 @@
 <script>
 /**
  * * mostrar en cartas los post que hacen los usuarios
- * TODO: mostrar mis likes mostrando el corazon rojo si yo tengo una plublicacion dada like
  * TODO: Modificar el boton Edit para que solo aparezca en mi profile y al acceder a otro cambiarlo por sergir
  */
 import LikeSvg from "./LikeSvg.vue";
 import LikeSvgSolid from "./LikeSvgSolid.vue";
 import { likeAnimation } from "../assets/animations/animations";
-//import { mapActions } from "vuex";
 import axios from "axios";
+//import store from "../store";
+import { mapGetters } from "vuex";
 
 export default {
   name: "CardPostUser",
@@ -81,6 +81,7 @@ export default {
     },
   },
   methods: {
+    ...mapGetters(["getLikesPost"]),
     props: {
       idPost: {
         type: String,
@@ -95,9 +96,7 @@ export default {
       }
       this.likePublic();
     },
-    //...mapActions(["likePost"]),
     likePublic() {
-      console.log(this.likesUpdate);
       axios
         .post(
           "http://localhost:5000/api/v1/post/like-post",
@@ -111,10 +110,15 @@ export default {
         .then((res) => {
           localStorage.setItem("access-token", res.headers["access-token"]);
           this.likesUpdate = res.data.likes;
-          console.log(res.likesUpdate);
         })
         .catch((err) => console.log(err));
     },
+  },
+  async created() {
+    let likesPost = await this.getLikesPost();
+    if (likesPost.includes(this.idPost)) {
+      this.like = "LikeSvgSolid";
+    }
   },
   components: {
     LikeSvg,

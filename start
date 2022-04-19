@@ -14,7 +14,7 @@ if [[ $docker -eq 0 ]]; then
 	(
 	sudo docker start dev-clone-twitter ; 
 	sudo docker start chat-mongo ;
-	sudo docker start redis-users ;
+	#sudo docker start redis-users ;
 	)
 fi
 # initialization code
