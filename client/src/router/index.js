@@ -106,6 +106,10 @@ router.beforeEach((to, from, next) => {
     if (store.state.user.nickname === null && user.nickname !== null) {
       store.dispatch("updateUserDataStore", user);
     }
+    // ? update my data user
+    if (store.state.user.nickname !== user.nickname) {
+      store.dispatch("updateUserDataStore", user);
+    }
   }
 
   next();

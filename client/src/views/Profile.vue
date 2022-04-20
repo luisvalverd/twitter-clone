@@ -73,7 +73,6 @@ export default {
   },
   async mounted() {
     this.userData = await this.getDataUser;
-    //this.posts = await this.getPosts;
     this.loading = false;
 
     console.log(this.getPosts);

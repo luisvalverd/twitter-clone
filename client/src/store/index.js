@@ -59,7 +59,9 @@ export default createStore({
       state.user.isMyProfile = dataUser.isMyProfile;
       state.user.isFollow = dataUser.isFollow;
       state.likes = dataUser.likes;
-      Cookies.set("user", JSON.stringify(dataUser));
+    },
+    updateCookiesUser(state, data) {
+      Cookies.set("user", JSON.stringify(data));
     },
     updatePosts(state, posts) {
       state.posts = posts;
@@ -78,7 +80,7 @@ export default createStore({
     },
     updateLikes(state, data) {
       state.likes = data;
-      Cookies.set("likes", JSON.stringify(data.likes));
+      Cookies.set("likes", JSON.stringify(data));
     },
   },
   actions: {
@@ -91,6 +93,7 @@ export default createStore({
           context.commit("updateToken", res.headers["access-token"]);
           context.commit("updateLikes", res.data.likes);
           context.commit("updateUserData", res.data);
+          context.commit("updateCookiesUser", res.data);
           context.commit("loginStop", null);
           router.push("/");
         })
@@ -106,6 +109,7 @@ export default createStore({
           localStorage.setItem("access-token", res.headers["access-token"]);
           contex.commit("updateToken", res.headers["access-token"]);
           contex.commit("updateUserData", res.data);
+          contex.commit("updateCookiesUser", res.data);
           contex.commit("loginStop", null);
           router.push("/");
         })
@@ -120,6 +124,9 @@ export default createStore({
       localStorage.removeItem("access-token");
       if (Cookies.get("user")) {
         Cookies.remove("user");
+      }
+      if (Cookies.get("likes")) {
+        Cookies.remove("likes");
       }
       context.commit("logout");
       router.push("/login");

@@ -9,7 +9,10 @@
       </a>
     </div>
     <div>
-      <input type="text" class="border-2" />
+      <input
+        type="text"
+        class="border-2 h-12 w-full focus:border-sky-200 px-4 rounded-full"
+      />
     </div>
     <div class="mt-10">
       <ul v-for="follow in following" :key="follow.id_follower">
@@ -54,8 +57,6 @@ export default {
       following: [],
     };
   },
-  // ! error al cargar usuarios en diferentes usuarios
-  // TODO: corregir el error por que no carga en diferentes usuario
   methods: {
     ...mapGetters(["getFollowing"]),
     startChatWithUser(data) {

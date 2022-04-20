@@ -35,14 +35,11 @@
 <script>
 /**
  * * mostrar en cartas los post que hacen los usuarios
- * TODO: Modificar el boton Edit para que solo aparezca en mi profile y al acceder a otro cambiarlo por sergir
  */
 import LikeSvg from "./LikeSvg.vue";
 import LikeSvgSolid from "./LikeSvgSolid.vue";
 import { likeAnimation } from "../assets/animations/animations";
 import axios from "axios";
-//import store from "../store";
-import { mapGetters } from "vuex";
 
 export default {
   name: "CardPostUser",
@@ -81,12 +78,6 @@ export default {
     },
   },
   methods: {
-    ...mapGetters(["getLikesPost"]),
-    props: {
-      idPost: {
-        type: String,
-      },
-    },
     handleLikes() {
       likeAnimation(this.$refs.likeSvg);
       if (this.like === "LikeSvg") {
@@ -115,7 +106,7 @@ export default {
     },
   },
   async created() {
-    let likesPost = await this.getLikesPost();
+    let likesPost = JSON.parse(this.$cookies.get("likes"));
     if (likesPost.includes(this.idPost)) {
       this.like = "LikeSvgSolid";
     }

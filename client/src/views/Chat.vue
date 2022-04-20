@@ -25,11 +25,27 @@
               </div>
             </div>
           </div>
-          <div class="">
+          <div v-if="user === ''">
+            <div class="flex justify-center items-center">
+              <label class="text-8xl text-gray-400">Select a Chat</label>
+            </div>
+          </div>
+          <div>
             <ul v-for="message in messages" v-bind:key="message.id">
-              <li class="mx-4 h-6">
-                <b>{{ message.emitter }}</b>
-                : {{ message.text }}
+              <li
+                class="flex mx-4 h-8 my-2"
+                v-if="message.emitter !== getDataUser().nickname"
+              >
+                <div class="bg-gray-200 rounded-full px-5 flex items-center">
+                  <b>{{ message.emitter }}</b>
+                  : {{ message.text }}
+                </div>
+              </li>
+              <li v-else class="flex mx-4 h-8 justify-end my-2">
+                <div class="bg-sky-400 rounded-full px-5 flex items-center">
+                  <b>{{ message.emitter }}</b>
+                  : {{ message.text }}
+                </div>
               </li>
             </ul>
             <div class="w-full">
@@ -55,7 +71,6 @@
 </template>
 
 <script>
-//import io from "socket.io-client";
 import store from "../store/index";
 import ChatUsers from "../components/ChatUsers.vue";
 import { mapGetters } from "vuex";
@@ -76,7 +91,7 @@ export default {
     ChatUsers,
   },
   methods: {
-    ...mapGetters(["getSocket"]),
+    ...mapGetters(["getSocket", "getDataUser"]),
     sendMessage() {
       this.addMessage();
 
@@ -91,7 +106,6 @@ export default {
       };
 
       this.messages = this.messages.concat(message);
-      console.log(this.messages);
 
       this.getSocket().socketInstance.emit("message", message);
     },

@@ -63,9 +63,6 @@
 </template>
 
 <script>
-/**
- * TODO: boton cambie if yo sigo al usuario;
- */
 import { mapGetters, mapActions } from "vuex";
 import EditProfile from "./ModalEditProfile.vue";
 
