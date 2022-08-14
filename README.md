@@ -46,4 +46,4 @@ in terminal execute:
 ```
 
 ## Images
-![Alt text](https://github.com/luisvalverd/twitter-clone/images/twitter-clone.png)
+![Alt twitter-clone](https://github.com/luisvalverd/twitter-clone/blob/master/images/twitter-clone.png)
